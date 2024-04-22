@@ -69,7 +69,12 @@ The final part of the code conducts wavelet coherence analysis to investigate th
 
 This code provides insights into the dynamics of different economic sectors and their relationships with relief measures during the pandemic. It offers a comprehensive approach to understanding the impact of various factors on economic resilience and recovery.
 
-For any questions or issues, please contact the repository owner.
+To run the code:
+1. Put the code and the data csv files in the same folder.
+2. Go to "Session" tab at the top of Rstudio and set working directory "To Source File Location"
+3. Select all code (Ctrl + A) and then click Run (Ctrl + Enter)
+4. Highlight specific code to run specific areas or plots
+
 
 
 VISUALIZATIONS
