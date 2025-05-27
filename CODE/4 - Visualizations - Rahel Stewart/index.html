@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v5.js"></script>
+<script src="https://unpkg.com/topojson@3"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<style>
+ 
+body, h1, h2, h3, p {
+  margin: 0;
+  padding: 0;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1em;
+  color: #333;
+  font-weight: 400;
+}
+
+#content {
+  margin: 5px;
+  padding: 20px;
+  width: 805px;
+  border: 1px solid #ccc;
+}
+
+#map {
+  margin: 10px 0px 0px 0px;
+  padding: 0px;
+}
+
+#percapita {
+  width: auto;
+  display: inline;
+  margin: 10px;
+}
+
+.data {
+    padding-bottom: 3px;
+}
+
+h1, h2 {
+  line-height: 1em;
+  font-size: 1.75em;
+  font-weight: 900;
+  color: #000;
+}
+
+h2.date {
+  margin: 10px 0px 0px 0px;
+  font-size: 1.3em;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.25em;
+  margin: 0px 0px 0px 0px;
+  font-weight: 900;
+}
+
+p {
+  margin: 10px 0px 0px 0px;
+}
+
+.counties {
+  position: absolute;
+}
+
+
+.states {
+  fill: none;
+  stroke: black;
+  stroke-width: 0.5px;
+  stroke-linejoin: round;
+}
+
+input {
+  display: block;
+  width: 200px;
+  margin: 10px 0px 0px 0px;
+}
+
+#legend text {
+  font-size: 0.9em;
+  color: #333;
+  font-weight: 400;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  margin: 10px;
+  font-size: 0.9em;
+  pointer-events: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+
+  -moz-box-shadow:    3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+  box-shadow:         3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+}
+
+.tooltip p {
+  margin: 0;
+  padding: 0;
+}
+
+.tooltip table {
+  margin: 0;
+  padding: 0;
+  border-collapse: collapse;
+}
+
+.wide {
+  width: 140px;
+}
+
+.cusotmBoxShadow{
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+  border-radius: 25px;
+}
+.chartStyle{
+ padding:  50px;
+
+}
+#main-title{
+    padding: 25px;
+    width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#loading-circle {
+  /* display: none; */
+  float: inline-start;
+    margin-top: 7%;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+</style>
+
+<div style="width: 100%; margin: 10px;">
+     <div id="main-title" class="cusotmBoxShadow">
+         <h1 style="text-align: center;">Team 194</h1>
+         <h1 style="text-align: center;">Pandemic Rescue: Economic Impacts of Pandemics</h1>
+     </div>
+     
+    <div class="cusotmBoxShadow" style=" width: 1200px; margin-left: auto; margin-right: auto; margin-top: 50px;">
+    <table style=" width: 1200px; margin-left: auto; margin-right: auto;">
+      <tr>
+        <td style="width: 300px;">
+          <div id="info">
+            <h2 class="date" style="text-align: center;"></h2>
+            <div class="slider"></div>
+            <h2 style="display : none;" class="interval"></h2>
+            <div style="display : none;" class="slider-interval"></div>
+          </div>
+        </td>
+        <td style="width: 300px;">
+          <select class="data dropdown form-control">
+            <option value="deaths">Deaths</option>
+            <option value="cases">Positive tests</option>
+          </select>
+          <div class="search dropdown"></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+  <div class="mapslocation"></div>
+  <div class="cusotmBoxShadow centered-square" style=" width: 1100px; margin-left: auto; margin-right: auto; margin-bottom : 75px; margin-top : 75px">
+    <div id="loading-circle"></div>
+  <svg style="position: relative; left:50px" id="map"></svg>
+  <svg id="legend"></svg>
+ </div>
+ <div class="top-right-square">
+  <!-- <div class="tooltip "></div> -->
+ </div>
+  
+ </div>
+ 
+
+    <table style=" width: 1200px; margin-left: auto; margin-right: auto;">
+     
+      <tr>
+        <td class="cusotmBoxShadow chartStyle">
+          <h2>Circulating Currency</h2>
+          <div id="currcir_chart"></div></td>
+          <td style="width: 50px;display: block;"></td>
+        <td class="cusotmBoxShadow chartStyle">
+          <h2>Fed Funds Rate</h2>
+          <div id="fedfunds_chart"></div></td>
+      </tr >
+      <tr style="height: 25px;display: block;"></tr>
+      <tr>
+        <td class="cusotmBoxShadow chartStyle">
+          <h2>Employment Ratio</h2>
+          <div id="emratiio_chart"></div></td>
+          <td style="width: 50px;display: block;"></td>
+        <td class="cusotmBoxShadow chartStyle">
+          <h2>S&P 500</h2>
+          <div id="sp500_chart"></div></td>
+      </tr >
+      <tr style="height: 25px;display: block;"></tr>
+      <tr>
+        <td class="cusotmBoxShadow chartStyle">
+          <h2>Gross domestic product</h2>
+          <div id="GDP_chart"></div></td>
+          <td style="width: 50px;display: block;"></td>
+        <td class="cusotmBoxShadow chartStyle">
+          <h2>Vaccine</h2>
+          <div id="vaccine_chart"></div></td>
+      </tr >
+      <tr style="height: 25px;display: block;"></tr>
+      <tr>
+        <td class="cusotmBoxShadow chartStyle">
+          <img src="data/MicrosoftTeams-image.png"/>
+        </td>
+          <td style="width: 50px;display: block;"></td>
+        <td class="cusotmBoxShadow chartStyle">
+          <img src="data/MicrosoftTeams-image (2).png"/>
+          </td>
+      </tr >
+      <tr style="height: 25px;display: block;"></tr>
+      <tr>
+        <td class="cusotmBoxShadow chartStyle">
+          <img src="data/MicrosoftTeams-image (3).png"/>
+        </td>
+          <td style="width: 50px;display: block;"></td>
+          <td class="cusotmBoxShadow chartStyle">
+            <img src="data/MicrosoftTeams-image (4).png"/>
+          </td>
+      </tr >
+      <tr style="height: 25px;display: block;"></tr>
+      <tr>
+        <td class="cusotmBoxShadow chartStyle">
+          <img src="data/MicrosoftTeams-image (5).png"/>
+        </td>
+          <td style="width: 50px;display: block;"></td>
+        
+      </tr >
+      
+    </table>
+    <script src="load.js"></script>
+    <script src="loaddata.js"></script>
+    <script src="legend.js"></script>
+    <script src="drawchart1.js"></script>
+    <script src="drawchart2.js"></script>
+    <br>
+
+</div>
+
+</html>
